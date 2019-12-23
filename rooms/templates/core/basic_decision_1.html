@@ -1,0 +1,46 @@
+{% load extras %}
+{% load static %}
+
+<!doctype html>
+  <html>
+	<head>
+		<link rel="stylesheet" href="{% static 'css/core.css' %}">
+    	<meta charset="utf-8">
+    <title>Basic Decision</title>
+    </head>
+ 
+    <body>
+
+	    <table>
+	    	{% for alternative in alternatives %}
+
+	    	<tr>
+	    		<td>{{ alternative }}</td>
+	    		{% for vector in marks|get_item:alternative %}
+	    			<td>{{ vector.mark.name }}</td>
+	    		{% endfor %}
+	    	</tr>
+
+	    	{% endfor %}
+	    </table>
+
+	    <br>
+	    <br>
+
+	    <table>
+	    	{% for alternative in p_alternatives %}
+
+	    	<tr>
+	    		<td>{{ alternative }}</td>
+	    		{% for vector in p_marks|get_item:alternative %}
+	    			<td>{{ vector.mark.name }}</td>
+	    		{% endfor %}
+	    	</tr>
+
+	    	{% endfor %}
+	    </table>
+
+	    <a href="{% url 'core:normalized_view' normalize_data='False' %}">Дальше</a>	
+
+    </body>
+ </html>

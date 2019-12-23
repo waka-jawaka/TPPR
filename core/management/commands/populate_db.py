@@ -1,5 +1,50 @@
 from django.core.management.base import BaseCommand
-from core.models import Alternative, Person, Result, Criterion, Mark
+from core.models import Alternative, Person, Result, Criterion, Mark, Vector
+
+
+MARKS = {
+	'Житлоплоща' : [
+		('Житлоплоща 60 кв. м', 2, 60),
+		('Житлоплоща 75.4 кв. м', 1, 75.4),
+		('Житлоплоща 45.24 кв. м', 3, 45.24),
+	],
+	'Наявність ремонту' : [
+		('Так', None, None),
+		('Ні', None, None),
+	],
+	'Тип будинку' : [
+		('Брежневка', 2, None),
+		('Хрущевка', 4, None),
+		('Новострой', 1, None),
+		('Приватний будинок', 3, None),
+	],
+	'Поверх' : [
+		('1', 2, None),
+		('5', 1, None),
+		('6', 2, None),
+		('9', 1, None),
+	],
+	'Віддаленість від центру' : [
+		('25322 м', 1, 25322),
+		('62322 м', 3, 62322),
+		('35034 м', 2, 35034),
+	],
+	'Вартість житла' : [
+		('40000 $', 2, 40000),
+		('50000 $', 3, 50000),
+		('35000 $', 1, 35000),
+	],
+}
+
+CRITERIONS = (
+	('Житлоплоща', 1, 'quan', 'max', 'кв. м', 'ratio'),
+	('Вартість житла', 1, 'quan', 'min', '$', 'ratio'),
+	('Віддаленість від центру', 1, 'quan', 'min', 'м', 'ratio'),
+	('Поверх', 1, 'qual', None, None, 'nominal'),
+	('Тип будинку', 1, 'qual', None, None, 'nominal'),
+	('Наявність ремонту', 1, 'qual', None, None, 'ordinal'),
+)
+
 
 class Command(BaseCommand):
 	args = '<foo bar ...>'
@@ -15,7 +60,7 @@ class Command(BaseCommand):
 
 	def _create_houses(self):
 		self.houses = []
-		for i in range(1, 7):
+		for i in range(1, 6):
 			house_name = 'House ' + str(i)
 			house = Alternative(name=house_name)
 			house.save()
@@ -31,16 +76,7 @@ class Command(BaseCommand):
 
 	def _create_criterions(self):
 
-		DATA = (
-			('Житлоплоща', 1, 'quan', 'max', 'кв. м', 'ratio'),
-			('Вартість житла', 1, 'quan', 'min', '$', 'ratio'),
-			('Віддаленість від центру', 1, 'quan', 'min', 'м', 'ratio'),
-			('Поверх', 1, 'qual', None, None, 'nominal'),
-			('Тип будинку', 1, 'qual', None, None, 'nominal'),
-			('Наявність ремонту', 1, 'qual', None, None, 'ordinal'),
-		)
-
-		for e in DATA:
+		for e in CRITERIONS:
 			criterion = Criterion(
 				name=e[0], rate=e[1], criterion_type=e[2], 
 				optimization_type=e[3], measurement=e[4], scale=e[5]
@@ -48,45 +84,36 @@ class Command(BaseCommand):
 			criterion.save()
 
 	def _create_marks(self):
+		criterions = Criterion.objects.all()
+		for criterion in criterions:
+			for v in MARKS[criterion.name]:
+				mark = Mark.objects.create(
+					criterion=criterion, name=v[0], rate=v[1], number=v[2])
+
+	def _create_vectors(self):
 		DATA = {
-			'Житлоплоща' : [
-				('Житлоплоща 60 кв. м', 2, 60),
-				('Житлоплоща 75.4 кв. м', 1, 75.4),
-				('Житлоплоща 45.24 кв. м', 3, 45.24),
+			'House 1': [
+				'Житлоплоща 75.4 кв. м', 'Так', 'Новострой', '5', '25322 м', '40000 $'
 			],
-			'Наявність ремонту' : [
-				('Так', 1, 1),
-				('Ні', 2, 0),
+			'House 2': [
+				'Житлоплоща 75.4 кв. м', 'Ні', 'Хрущевка', '6', '62322 м', '50000 $'
 			],
-			'Тип будинку' : [
-				('Брежневка', 2, 0),
-				('Хрущевка', 4, 0),
-				('Новострой', 1, 0),
-				('Приватний будинок', 3, 0),
+			'House 3': [
+				'Житлоплоща 45.24 кв. м', 'Ні', 'Новострой', '9', '25322 м', '40000 $'
 			],
-			'Поверх' : [
-				('1', 2, 0),
-				('5', 1, 0),
-				('6', 2, 0),
-				('9', 1, 0),
+			'House 4': [
+				'Житлоплоща 60 кв. м', 'Так', 'Приватний будинок', '1', '62322 м', '35000 $'
 			],
-			'Віддаленість від центру' : [
-				('25322 м', 1, 25322),
-				('62322 м', 3, 62322),
-				('35034 м', 2, 35034),
-			],
-			'Вартість житла' : [
-				('40000 $', 2, 40000),
-				('50000 $', 3, 50000),
-				('35000 $', 1, 35000),
+			'House 5': [
+				'Житлоплоща 45.24 кв. м', 'Так', 'Брежневка', '1', '35034 м', '50000 $'
 			],
 		}
 
-		criterions = Criterion.objects.all()
-		for criterion in criterions:
-			for v in DATA[criterion.name]:
-				mark = Mark.objects.create(
-					criterion=criterion, name=v[0], rate=v[1], number=v[2])
+		for k, v in DATA.items():
+			alternative = Alternative.objects.get(name=k)
+			for mark_name in v:
+				mark = Mark.objects.get(name=mark_name)
+				Vector.objects.create(alternative=alternative, mark=mark)
 
 	def handle(self, *args, **options):
 		self._clear_database()
@@ -94,3 +121,4 @@ class Command(BaseCommand):
 		self._create_people()
 		self._create_criterions()
 		self._create_marks()
+		self._create_vectors()

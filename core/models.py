@@ -33,7 +33,7 @@ class Criterion(models.Model):
 	rate = models.PositiveIntegerField()
 	weight = models.FloatField(
 		validators = [MinValueValidator(0)],
-		default=1,
+		null=True, blank=True
 	)
 	criterion_type = models.CharField(max_length=4, choices=TYPES)
 	optimization_type = models.CharField(max_length=3, choices=OPTIMIZATION_TYPES, null=True, blank=True)
@@ -47,15 +47,14 @@ class Criterion(models.Model):
 class Mark(models.Model):
 	criterion = models.ForeignKey('Criterion', on_delete=models.CASCADE)
 	name = models.CharField(max_length=100)
-	rate = models.PositiveIntegerField()
+	rate = models.PositiveIntegerField(null=True, blank=True)
 	number = models.FloatField(
-		validators = [MinValueValidator(0)],
+		validators = [MinValueValidator(0)], null=True, blank=True
 	)
 	normalized = models.FloatField(
 		null=True, blank=True,
 		validators = [MinValueValidator(0), MaxValueValidator(1)],
 	)
-	alternatives = models.ManyToManyField(Alternative)
 
 	def __str__(self):
 		return "Оценка \"{}\" по критерию \"{}\"".format(self.name, self.criterion.name)
@@ -95,3 +94,11 @@ class Result(models.Model):
 
 	def __str__(self):
 		return "{} - {}".format(str(self.person), str(self.alternative))
+
+
+class Vector(models.Model):
+	alternative = models.ForeignKey('Alternative', on_delete=models.CASCADE)
+	mark = models.ForeignKey('Mark', on_delete=models.CASCADE)
+
+	def __str__(self):
+		return "{} - {}".format(str(self.alternative), str(self.mark))

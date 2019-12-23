@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Alternative, Criterion, Mark, Person, Result
+from .models import Alternative, Criterion, Mark, Person, Result, Vector
 
 
 def normalize_all_marks(modeladmin, request, queryset):
@@ -18,3 +18,4 @@ admin.site.register(Criterion)
 admin.site.register(Mark, MarkAdmin)
 admin.site.register(Person)
 admin.site.register(Result)
+admin.site.register(Vector)

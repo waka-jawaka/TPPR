@@ -1,0 +1,40 @@
+{% load extras %}
+{% load static %}
+
+<!doctype html>
+  <html>
+	<head>
+		<link rel="stylesheet" href="{% static 'css/core.css' %}">
+    	<meta charset="utf-8">
+    <title>Basic Decision</title>
+    </head>
+ 
+    <body>
+
+	    <table>
+	    	{% for alternative in alternatives %}
+
+	    	<tr>
+	    		<td>{{ alternative }}</td>
+	    		{% for vector in marks|get_item:alternative %}
+	    			<td>{{ vector.mark.name }}</td>
+	    		{% endfor %}
+	    	</tr>
+
+	    	{% endfor %}
+	    </table>
+
+	    <p>У всех качественных оценок задано число: {{ quality_check }}</p>
+	    {% for link in quality_urls %}
+	    	<a href={{ link.link }} target="_blank">{{ link.mark.criterion.name }} : {{ link.mark.name }}</a>
+	    {% endfor %}
+
+	    <a href="{% url 'core:paretto_view' %}">Дальше</a>	
+
+	    <p>Установлена важность криетериев: </p>
+	    <p>Данные не противоречат друг другу: </p>
+
+
+	    
+    </body>
+ </html>
