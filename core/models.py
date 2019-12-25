@@ -65,8 +65,10 @@ class Mark(models.Model):
 		max_mark = marks_by_criterion.aggregate(models.Max('number')).get('number__max')
 		if min_mark  == max_mark:
 			return
+		if self.number is None:
+			return
 
-		if self.criterion.optimization_type == 'max':
+		if self.criterion.optimization_type == 'max' or self.criterion.criterion_type == 'qual':
 			self.normalized = (self.number - min_mark) / (max_mark - min_mark)
 			self.save()
 		elif self.criterion.optimization_type == 'min':

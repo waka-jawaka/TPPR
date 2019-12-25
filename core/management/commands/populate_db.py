@@ -13,16 +13,16 @@ MARKS = {
 		('Ні', None, None),
 	],
 	'Тип будинку' : [
-		('Брежневка', 2, None),
-		('Хрущевка', 4, None),
-		('Новострой', 1, None),
-		('Приватний будинок', 3, None),
+		('Брежневка', 2, 3),
+		('Хрущевка', 4, 1),
+		('Новострой', 1, 4),
+		('Приватний будинок', 3, 2),
 	],
 	'Поверх' : [
-		('1', 2, None),
-		('5', 1, None),
-		('6', 2, None),
-		('9', 1, None),
+		('1', 2, 1),
+		('5', 1, 2),
+		('6', 2, 1),
+		('9', 2, 1),
 	],
 	'Віддаленість від центру' : [
 		('25322 м', 1, 25322),
@@ -37,12 +37,12 @@ MARKS = {
 }
 
 CRITERIONS = (
-	('Житлоплоща', 1, 'quan', 'max', 'кв. м', 'ratio'),
-	('Вартість житла', 1, 'quan', 'min', '$', 'ratio'),
-	('Віддаленість від центру', 1, 'quan', 'min', 'м', 'ratio'),
-	('Поверх', 1, 'qual', None, None, 'nominal'),
-	('Тип будинку', 1, 'qual', None, None, 'nominal'),
-	('Наявність ремонту', 1, 'qual', None, None, 'ordinal'),
+	('Житлоплоща', 1, 'quan', 'max', 'кв. м', 'ratio', None),
+	('Вартість житла', 1, 'quan', 'min', '$', 'ratio', None),
+	('Віддаленість від центру', 1, 'quan', 'min', 'м', 'ratio', 2.5),
+	('Поверх', 1, 'qual', None, None, 'nominal', 1),
+	('Тип будинку', 1, 'qual', None, None, 'nominal', 2),
+	('Наявність ремонту', 1, 'qual', None, None, 'ordinal', 4),
 )
 
 
@@ -79,7 +79,7 @@ class Command(BaseCommand):
 		for e in CRITERIONS:
 			criterion = Criterion(
 				name=e[0], rate=e[1], criterion_type=e[2], 
-				optimization_type=e[3], measurement=e[4], scale=e[5]
+				optimization_type=e[3], measurement=e[4], scale=e[5], weight=e[6]
 			)
 			criterion.save()
 

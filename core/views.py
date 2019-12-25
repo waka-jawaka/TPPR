@@ -7,7 +7,7 @@ def quality_criterions_have_range():
 	urls = []
 	marks = Mark.objects.all()
 	for mark in marks:
-		if mark.rate == None:
+		if mark.number == None:
 			urls.append({
 				'link': 'http://127.0.0.1:8000/admin/core/mark/{}/change/'.format(mark.id),
 				'mark': mark,
@@ -17,6 +17,7 @@ def quality_criterions_have_range():
 
 def basic_decision(request):
 	alternatives = Alternative.objects.all()
+	criterions = Criterion.objects.all()
 	
 	marks = {}
 	for alternative in alternatives:
@@ -31,6 +32,7 @@ def basic_decision(request):
 		'marks': marks,
 		'quality_check': quality_check,
 		'quality_urls': urls,
+		'criterions': criterions,
 	}
 
 	return render(request, 'core/basic_decision.html', context)
@@ -57,7 +59,7 @@ def paretto(alternatives, marks):
 def is_normalized(marks):
 	for item in marks.values():
 		for vector in item:
-			if vector.mark.criterion.criterion_type == 'quan' and vector.mark.normalized == None:
+			if vector.mark.normalized == None:
 				return False
 	return True
 
@@ -65,8 +67,7 @@ def is_normalized(marks):
 def normalize(marks):
 	for item in marks.values():
 		for vector in item:
-			if vector.mark.criterion.criterion_type == 'quan':
-				vector.mark.normalize()
+			vector.mark.normalize()
 
 
 def weights_check():
@@ -78,7 +79,16 @@ def weights_check():
 				'name': criterion.name
 			})
 	return urls
-		
+
+
+def make_convolution(marks):
+	results = {}
+	for alternative in marks.keys():
+		conv = 0
+		for vector in marks[alternative]:
+			conv += vector.mark.normalized * vector.mark.criterion.weight
+		results[alternative] = conv
+	return results
 
 
 def paretto_view(request):
@@ -101,7 +111,7 @@ def paretto_view(request):
 	return render(request, 'core/basic_decision_1.html', context)
 
 
-def normalized_view(request, normalize_data):
+def normalized_view(request):
 	alternatives = Alternative.objects.all()
 	
 	marks = {}
@@ -109,15 +119,15 @@ def normalized_view(request, normalize_data):
 		vectors = Vector.objects.filter(alternative=alternative)
 		marks[alternative] = vectors
 
-	if normalize_data != 'yes':
-		normalize(marks)
-
+	normalize(marks)
 	is_norm = is_normalized(marks)
 
-	alternatives, marks = paretto(alternatives, marks)
+	p_alternatives, p_marks = paretto(alternatives, marks)
 	context = {
 		'alternatives': alternatives,
 		'marks': marks,
+		'p_alternatives': p_alternatives,
+		'p_marks': p_marks,
 		'is_normalized': is_norm,
 	}
 
@@ -144,3 +154,22 @@ def weights_view(request):
 
 	return render(request, 'core/basic_decision_3.html', context)
 
+
+def convolution_view(request):
+	alternatives = Alternative.objects.all()
+	
+	marks = {}
+	for alternative in alternatives:
+		vectors = Vector.objects.filter(alternative=alternative)
+		marks[alternative] = vectors
+
+	alternatives, marks = paretto(alternatives, marks)
+	results = make_convolution(marks)
+
+	context = {
+		'alternatives': alternatives,
+		'marks': marks,
+		'results': results
+	}
+
+	return render(request, 'core/basic_decision_4.html', context)

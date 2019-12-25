@@ -10,7 +10,14 @@ normalize_all_marks.short_description = 'Нормализировать выбр
 
 
 class MarkAdmin(admin.ModelAdmin):
-	actions = [normalize_all_marks]
+	actions = [normalize_all_marks,]
+	list_filter = ['criterion__name',]
+	list_display = ['__str__', 'rate']
+	readonly_fields = ('other_rates',)
+	fields = ['criterion', 'name', 'rate', 'number', 'normalized', 'other_rates']
+
+	def other_rates(self, obj):
+		return ", ".join([str(x.rate) for x in Mark.objects.filter(criterion=obj.criterion)])
 
 
 admin.site.register(Alternative)

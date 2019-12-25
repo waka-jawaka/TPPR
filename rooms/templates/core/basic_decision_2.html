@@ -10,8 +10,15 @@
     </head>
  
     <body>
-
-	    <table>
+    	<table>
+    		<tr>
+	    		<th>Альтернатива</th>
+	    		{% for vector in marks|get_item:alternatives.0 %}
+		    		<th>
+		    			{{ vector.mark.criterion.name }}
+		    		</th>
+		    	{% endfor %}	
+	    	</tr>
 	    	{% for alternative in alternatives %}
 
 	    	<tr>
@@ -25,9 +32,19 @@
 	    </table>
 
 	    <br>
+	    <p>Нормализованные данные:</p>
 	    <br>
 
+
 	    <table>
+	    	<tr>
+	    		<th>Альтернатива</th>
+	    		{% for vector in marks|get_item:alternatives.0 %}
+		    		<th>
+		    			{{ vector.mark.criterion.name }}
+		    		</th>
+		    	{% endfor %}	
+	    	</tr>
 	    	{% for alternative in alternatives %}
 
 	    	<tr>
@@ -41,15 +58,38 @@
 	    </table>
 
 	    <br>
+	    <p>Нормализованные данные и Паретто:</p>
+	    <br>
+
+	    <table>
+	    	<tr>
+	    		<th>Альтернатива</th>
+	    		{% for vector in marks|get_item:alternatives.0 %}
+		    		<th>
+		    			{{ vector.mark.criterion.name }}
+		    		</th>
+		    	{% endfor %}	
+	    	</tr>
+	    	{% for alternative in p_alternatives %}
+
+	    	<tr>
+	    		<td>{{ alternative }}</td>
+	    		{% for vector in p_marks|get_item:alternative %}
+	    			<td>{{ vector.mark.normalized }}</td>
+	    		{% endfor %}
+	    	</tr>
+
+	    	{% endfor %}
+	    </table>
+
+	    <br>
 	    <br>
 
 	    {% if is_normalized %}
-	    <p>Данные нормализованы</p>
 	    <a href="{% url 'core:weights_view' %}">Дальше</a>
 	    
 	    {% else %}
-	    <p>Данные не нормализованы</p>
-	    <a href="{% url 'core:normalized_view' 'yes' %}">Нормализовать</a>
+	    <a href="{% url 'core:normalized_view' %}">Нормализовать</a>
 	    {% endif %}
 
     </body>
