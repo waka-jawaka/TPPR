@@ -8,5 +8,7 @@ urlpatterns = [
 	path('normalized/', views.normalized_view, name='normalized_view'),
 	path('weights/', views.weights_view, name='weights_view'),
 	path('convolution/', views.convolution_view, name='convolution_view'),
+	path('board/', views.board_view, name='board_view'),
+	path('copland/', views.copland_view, name='copland_view'),
 	path('', views.basic_decision, name='decision'),
 ]

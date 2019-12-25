@@ -1,6 +1,8 @@
+import operator
+
 from django.shortcuts import render
 
-from .models import Mark, Alternative, Vector, Criterion
+from .models import Mark, Alternative, Vector, Criterion, Result, Person
 
 
 def quality_criterions_have_range():
@@ -91,6 +93,43 @@ def make_convolution(marks):
 	return results
 
 
+def count_sums(alternatives):
+	size = len(alternatives)
+	res = {}
+	for alternative in alternatives:
+		results = Result.objects.filter(alternative__name=alternative).order_by('person__id')
+		s = []
+		for result in results:
+			s.append(size - result.rate)
+		s.append(sum(s))
+		res[alternative] = s
+	return res
+
+def count_copland(alternatives):
+	results = {}
+	outcomes = {}
+	for alt1 in alternatives:
+		results[alt1] = {}
+		outcomes[alt1] = {}
+		outcomes[alt1]['sum'] = 0
+		for alt2 in alternatives:
+			if alt1 != alt2:
+				persons = Person.objects.all()
+				counter1, counter2 = 0, 0	
+				for person in persons:
+					res1 = Result.objects.filter(person=person, alternative=alt1)[0]
+					res2 = Result.objects.filter(person=person, alternative=alt2)[0]
+					if res1.rate < res2.rate:
+						counter1 += 1
+					else:
+						counter2 += 1
+					outcome = 1 if counter1 > counter2 else -1
+				results[alt1][alt2] = "{} : {}".format(counter1, counter2)
+				outcomes[alt1][alt2] = outcome
+				outcomes[alt1]['sum'] += outcome
+	return results, outcomes
+
+
 def paretto_view(request):
 	alternatives = Alternative.objects.all()
 	
@@ -173,3 +212,31 @@ def convolution_view(request):
 	}
 
 	return render(request, 'core/basic_decision_4.html', context)
+
+
+def board_view(request):
+	alternatives = Alternative.objects.all()
+	persons = Person.objects.order_by('id')
+	sums = count_sums(alternatives)
+
+	context = {
+		'alternatives': alternatives,
+		'sums': sums,
+		'persons': persons,
+		'max_sum': max(sums.items(), key=operator.itemgetter(1))[0]
+	}
+	return render(request, 'core/board.html', context)
+
+
+def copland_view(request):
+	alternatives = Alternative.objects.all()
+	results, outcomes = count_copland(alternatives)
+
+	context = {
+		'alternatives': alternatives,
+		'results': results,
+		'outcomes': outcomes,
+		'alternatives_with_sum': list(alternatives).copy() + ['sum',]
+	}
+
+	return render(request, 'core/copland.html', context)

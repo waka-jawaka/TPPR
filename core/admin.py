@@ -20,9 +20,14 @@ class MarkAdmin(admin.ModelAdmin):
 		return ", ".join([str(x.rate) for x in Mark.objects.filter(criterion=obj.criterion)])
 
 
+class ResultAdmin(admin.ModelAdmin):
+	list_filter = ["person__name", "alternative__name"]
+	list_display = ['__str__', 'rate']
+
+
 admin.site.register(Alternative)
 admin.site.register(Criterion)
 admin.site.register(Mark, MarkAdmin)
 admin.site.register(Person)
-admin.site.register(Result)
+admin.site.register(Result, ResultAdmin)
 admin.site.register(Vector)

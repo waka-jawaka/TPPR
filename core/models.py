@@ -88,10 +88,10 @@ class Person(models.Model):
 class Result(models.Model):
 	person = models.ForeignKey('Person', on_delete=models.CASCADE)
 	alternative = models.ForeignKey('Alternative', on_delete=models.CASCADE)
-	rate = models.PositiveIntegerField()
+	rate = models.PositiveIntegerField(null=True, blank=True)
 	weight = models.FloatField(
 		validators = [MinValueValidator(0)],
-		default=1,
+		null=True, blank=True
 	)
 
 	def __str__(self):

@@ -1,0 +1,73 @@
+{% load extras %}
+{% load static %}
+
+<!doctype html>
+  <html>
+	<head>
+		<link rel="stylesheet" href="{% static 'css/core.css' %}">
+    	<meta charset="utf-8">
+    <title>Board Decision</title>
+    </head>
+ 
+    <body>
+
+	    <table>
+	    	<tr>
+	    		<th></th>
+	    		{% for alternative in alternatives %}
+		    		<th>
+		    			{{ alternative.name }}
+		    		</th>
+		    	{% endfor %}	
+	    	</tr>
+
+	    	{% for alternative1 in alternatives %}
+	    	<tr>
+	    		<th>{{ alternative1 }}</th>
+	    		{% for alternative2 in alternatives %}
+	    			{% with r=results|get_item:alternative1|get_item:alternative2 %}
+	    			{% if r == None %}
+	    			<th></th>
+	    			{% else %}
+	    			<td>{{ r }}</td>
+	    			{% endif %}
+	    			{% endwith %}
+	    		{% endfor %}
+	    	</tr>
+
+	    	{% endfor %}
+	    </table>
+		
+	    <br>
+		<br>
+
+		<table>
+	    	<tr>
+	    		<th></th>
+	    		{% for alternative in alternatives %}
+		    		<th>
+		    			{{ alternative.name }}
+		    		</th>
+		    	{% endfor %}	
+		    	<th>Сумма</th>
+	    	</tr>
+
+	    	{% for alternative1 in alternatives %}
+	    	<tr>
+	    		<th>{{ alternative1 }}</th>
+	    		{% for alternative2 in alternatives_with_sum %}
+	    			{% with r=outcomes|get_item:alternative1|get_item:alternative2 %}
+	    			{% if r == None %}
+	    			<th></th>
+	    			{% else %}
+	    			<td>{{ r }}</td>
+	    			{% endif %}
+	    			{% endwith %}
+	    		{% endfor %}
+	    	</tr>
+
+	    	{% endfor %}
+	    </table>
+	    
+    </body>
+ </html>

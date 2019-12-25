@@ -1,0 +1,42 @@
+{% load extras %}
+{% load static %}
+
+<!doctype html>
+  <html>
+	<head>
+		<link rel="stylesheet" href="{% static 'css/core.css' %}">
+    	<meta charset="utf-8">
+    <title>Board Decision</title>
+    </head>
+ 
+    <body>
+
+	    <table>
+	    	<tr>
+	    		<th>Альтернатива</th>
+	    		{% for person in persons %}
+		    		<th>
+		    			{{ person.name }}
+		    		</th>
+		    	{% endfor %}	
+		    	<th>Сумма</th>
+	    	</tr>
+
+	    	{% for alternative in alternatives %}
+	    	<tr>
+	    		<td>{{ alternative }}</td>
+	    		{% for s in sums|get_item:alternative %}
+	    		{% if alternative == max_sum %}
+	    			<td><strong>{{ s }}</strong></td>
+	    		{% else %}
+	    			<td>{{ s }}</td>
+	    		{% endif %}
+	    		{% endfor %}
+	    	</tr>
+
+	    	{% endfor %}
+	    </table>
+		
+	    
+    </body>
+ </html>

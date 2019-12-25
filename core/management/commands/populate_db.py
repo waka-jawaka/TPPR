@@ -46,6 +46,31 @@ CRITERIONS = (
 )
 
 
+RESULTS = {
+	'Person 1': [
+		('House 1', 2),
+		('House 2', 5),
+		('House 3', 3),
+		('House 4', 1),
+		('House 5', 4),
+	],
+	'Person 2': [
+		('House 1', 4),
+		('House 2', 5),
+		('House 3', 2),
+		('House 4', 3),
+		('House 5', 1),
+	],
+	'Person 3': [
+		('House 1', 2),
+		('House 2', 5),
+		('House 3', 4),
+		('House 4', 1),
+		('House 5', 3),
+	],
+}
+
+
 class Command(BaseCommand):
 	args = '<foo bar ...>'
 	help = 'our help string comes here'
@@ -90,6 +115,14 @@ class Command(BaseCommand):
 				mark = Mark.objects.create(
 					criterion=criterion, name=v[0], rate=v[1], number=v[2])
 
+	def _create_results(self):
+		persons = Person.objects.all()
+		for person in persons:
+			for result in RESULTS[person.name]:
+				alternative = Alternative.objects.get(name=result[0])
+				Result.objects.create(
+					alternative=alternative, person=person, rate=result[1])
+
 	def _create_vectors(self):
 		DATA = {
 			'House 1': [
@@ -122,3 +155,4 @@ class Command(BaseCommand):
 		self._create_criterions()
 		self._create_marks()
 		self._create_vectors()
+		self._create_results()
